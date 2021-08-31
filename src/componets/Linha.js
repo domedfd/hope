@@ -27,15 +27,12 @@ function sortear(
     const idfronte = await AsyncStorage.getItem("@HopeApi:id");
     const responseGet = await api.patch(`/games/${idfronte}`);
     const apiArray = responseGet.data;
-    console.log(apiArray[index][i]);
 
     setArray(apiArray); //debug
     gerar();
     if (apiArray[index][i] == 1) {
-      console.log("position 9");
       setPosition(position + 8);
     } else {
-      console.log("position 1");
       setPosition(position + 1);
     }
     setLb(i);
@@ -72,15 +69,6 @@ function sortear(
         >
           <Text style={click ? styles.clabel : styles.label}>
             {labelbutton(position, index, block, i, lb, bet)}
-            {/* {position > index + 1
-              ? block == 0
-                ? i == lb
-                  ? "⭐"
-                  : bet
-                : i == lb
-                ? "💣"
-                : bet
-              : bet} */}
           </Text>
         </TouchableOpacity>
       </View>
