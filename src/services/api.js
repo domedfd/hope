@@ -1,7 +1,13 @@
-import axios from 'axios'
-const api = await axios.create({
-    baseURL: 'http://localhost:3000'
+import { create } from "apisauce";
 
-})
+const api = create({
+  baseURL: "http://3f079e52e1ac.ngrok.io",
+});
 
-export default api
+// api.addResponseTransform((Response) => {
+//   if (!Response.ok) {
+//     throw Response;
+//   }
+// });
+
+export default api;

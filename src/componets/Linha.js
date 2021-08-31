@@ -1,20 +1,65 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import api from "../services/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-function sortear(click, setPosition, array, position, index, bet) {
+function sortear(
+  click,
+  setPosition,
+  array,
+  position,
+  index,
+  bet,
+  setArray,
+  setStart
+) {
   const [lb, setLb] = useState(bet);
 
-  function toque(block, i) {
-    if (block == 1) {
+  async function gerar() {
+    try {
+    } catch (error) {
+      console.log("deu erro!");
+    }
+  }
+
+  async function toque(block, i) {
+    setStart(true);
+    const idfronte = await AsyncStorage.getItem("@HopeApi:id");
+    const responseGet = await api.patch(`/games/${idfronte}`);
+    const apiArray = responseGet.data;
+    console.log(apiArray[index][i]);
+
+    setArray(apiArray); //debug
+    gerar();
+    if (apiArray[index][i] == 1) {
+      console.log("position 9");
       setPosition(position + 8);
     } else {
+      console.log("position 1");
       setPosition(position + 1);
     }
     setLb(i);
-    if (block == 1) {
-    }
+  }
 
-    // console.log(block);
+  function labelbutton(position, index, block, i, lb, bet) {
+    // return block;
+    if (position > index + 1) {
+      if (block == 0) {
+        if (i == lb) {
+          return "⭐";
+        } else {
+          return bet;
+        }
+      } else if (block == 2) {
+        return bet;
+      } else if (i == lb) {
+        return "💣";
+      } else {
+        return bet;
+      }
+    } else {
+      return bet;
+    }
   }
 
   return array.map((block, i) => {
@@ -26,7 +71,8 @@ function sortear(click, setPosition, array, position, index, bet) {
           disabled={!click}
         >
           <Text style={click ? styles.clabel : styles.label}>
-            {position > index + 1
+            {labelbutton(position, index, block, i, lb, bet)}
+            {/* {position > index + 1
               ? block == 0
                 ? i == lb
                   ? "⭐"
@@ -34,7 +80,7 @@ function sortear(click, setPosition, array, position, index, bet) {
                 : i == lb
                 ? "💣"
                 : bet
-              : bet}
+              : bet} */}
           </Text>
         </TouchableOpacity>
       </View>
@@ -48,11 +94,22 @@ export default function Linha({
   position,
   index,
   bet,
+  setArray,
+  setStart,
 }) {
   return (
     <>
       <View style={click ? styles.clinha : styles.linha}>
-        {sortear(click, setPosition, array, position, index, bet)}
+        {sortear(
+          click,
+          setPosition,
+          array,
+          position,
+          index,
+          bet,
+          setArray,
+          setStart
+        )}
       </View>
     </>
   );

@@ -1,15 +1,41 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, Button, TouchableOpacity } from "react-native";
-export default function Resultados({ setPosition }) {
-  const [money, setMoney] = useState(true);
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import api from "../services/api";
 
-  function newgame() {
-    setMoney(!money);
-    if (money) {
-      setPosition(1);
-    } else {
-      setPosition(9);
-    }
+export default function Resultados({ setPosition, setArray }) {
+  const [money, setMoney] = useState(true);
+  const darray = [
+    [2, 2, 2],
+    [2, 2, 2],
+    [2, 2, 2],
+    [2, 2, 2],
+    [2, 2, 2],
+    [2, 2, 2],
+    [2, 2, 2],
+    [2, 2, 2],
+  ];
+
+  let reders = 0;
+
+  async function newgame() {
+    try {
+      if (money) {
+        setPosition(1);
+        setMoney(!money);
+
+        const response = await api.post("/games", {
+          nivel: "1",
+        });
+        const { id } = response.data;
+
+        await AsyncStorage.multiSet([["@HopeApi:id", id]]);
+      } else {
+        setMoney(!money);
+        setPosition(9);
+        setArray(darray);
+      }
+    } catch (error) {}
   }
   return (
     <View style={styles.container}>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   StyleSheet,
   View,
@@ -10,37 +10,54 @@ import {
 import Svg, { Path } from "react-native-svg";
 import Linha from "./Linha";
 import Resuldados from "./Resultados";
+import api from "../services/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // let position = 4;
-const array = [
-  [1, 0, 0],
-  [0, 0, 1],
-  [0, 0, 1],
-  [1, 0, 0],
-  [1, 0, 0],
-  [0, 1, 0],
-  [1, 0, 0],
-  [0, 1, 0],
+const darray = [
+  [2, 2, 2],
+  [2, 2, 2],
+  [2, 2, 2],
+  [2, 2, 2],
+  [2, 2, 2],
+  [2, 2, 2],
+  [2, 2, 2],
+  [2, 2, 2],
 ];
-let tArray = array.length;
 
 export default function Barra() {
-  const [position, setPosition] = useState(1);
+  const [position, setPosition] = useState(9);
   const [click, setClick] = useState(true);
-  const [value, setValue] = useState(10);
+  const [array, setArray] = useState(darray);
+  const [start, setStart] = useState(false);
   const [bet, setBet] = useState(0.01);
+  const [reset, setReset] = useState();
+
+  const refScrollView = useRef();
+
+  async function gerar() {
+    setStart(true);
+    try {
+      const idfronte = await AsyncStorage.getItem("@HopeApi:id");
+      const responseGet = await api.patch(`/games/${idfronte}`);
+      const apiArray = responseGet.data;
+
+      setArray(apiArray); //debug
+    } catch (error) {
+      console.log("deu erro!");
+    }
+  }
 
   function rendergame(array) {
     let bets = bet;
 
     return (
       <View style={styles.borde}>
+        {/* {error.errorMessage && <Text>Error!!</Text>} */}
         <ScrollView
-          ref={(ref) => {
-            this.scrollView = ref;
-          }}
+          ref={refScrollView}
           onContentSizeChange={() =>
-            this.scrollView.scrollToEnd({ animated: true })
+            refScrollView.current.scrollToEnd({ animated: true })
           }
           style={styles.container}
         >
@@ -57,12 +74,18 @@ export default function Barra() {
                   position={position}
                   index={i}
                   bet={bets.toFixed(2)}
+                  setArray={setArray}
+                  setStart={setStart}
                 />
               );
             })
             .reverse()}
         </ScrollView>
-        <Resuldados setPosition={setPosition} />
+        <Resuldados
+          setPosition={setPosition}
+          setArray={setArray}
+          setReset={setReset}
+        />
         <View style={styles.containerBet}>
           <View style={styles.containerLabel}>
             <Text style={styles.betLabel}>Bet Amount</Text>
@@ -97,8 +120,8 @@ export default function Barra() {
                 keyboardType="number-pad"
                 maxLength={10}
                 style={styles.inputText}
-                onChangeText={(text) => setValue(text)}
-                value={value}
+                onChangeText={(text) => setBet(Number(text))}
+                value={bet}
               ></TextInput>
             </View>
             <TouchableOpacity style={styles.containerValueBetend}>
@@ -131,7 +154,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
     marginLeft: 10,
     borderRadius: 5,
-    maxHeight: "70%",
+    maxHeight: "90%",
     padding: -100,
   },
   borde: {
@@ -139,7 +162,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#17182f",
     borderRadius: 5,
     margin: 30,
-    maxHeight: "75%",
+    maxHeight: "95%",
     minHeight: "30%",
   },
   valueBet: {
